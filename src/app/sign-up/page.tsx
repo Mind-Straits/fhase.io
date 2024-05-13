@@ -2,8 +2,11 @@
 import React, { useState } from "react";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "@/app/firebase/config";
+import firestore from "@/app/firebase/firebaseQueries";
+import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(true);
@@ -11,14 +14,21 @@ const SignUpPage = () => {
 
   const [createUserWithEmailAndPassword] =
     useCreateUserWithEmailAndPassword(auth);
-  // Authentication function stub
+  const router = useRouter();
+
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Prevent form from submitting and refreshing the page
+    event.preventDefault();
     try {
       const res = await createUserWithEmailAndPassword(email, password);
       console.log({ res });
+      await firestore.createDocument("user", res?.user.uid, {
+        username,
+        email,
+      });
+      setUsername("");
       setEmail("");
       setPassword("");
+      router.push("/dashboard");
     } catch (e) {
       console.error(e);
     }
@@ -58,6 +68,17 @@ const SignUpPage = () => {
                     <div className="py-2">
                       <span className="px-1 text-sm text-gray-600">
                         Enter Username
+                      </span>
+                      <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="text-black text-md block px-3 py-2 rounded-lg w-full bg-white border-2 border-gray-300 placeholder-gray-600 shadow-md focus:placeholder-gray-500 focus:bg-white focus:border-gray-600 focus:outline-none"
+                      />
+                    </div>
+                    <div className="py-2">
+                      <span className="px-1 text-sm text-gray-600">
+                        Enter Email
                       </span>
                       <input
                         type="text"

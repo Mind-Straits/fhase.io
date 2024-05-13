@@ -27,7 +27,7 @@ const SignInPage = () => {
   };
 
   return (
-    <div className="bg-gray-100 container max-w-full mx-auto ">
+    <div className="bg-gray-100 container max-w-full mx-auto pb-[130px]">
       <div className="bg-white flex items-center justify-start w-full py-3">
         <a href="/">
           <span className="sr-only">Home</span>
