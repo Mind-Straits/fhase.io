@@ -39,7 +39,7 @@ const SignInPage = () => {
         const { user } = userGoogle;
         try {
           await firestore.createDocument("user", user.uid, {});
-          router.push("/dashboard");
+          router.push("/sign-up?fromGoogle=true");
         } catch (error) {
           console.error("Error creating user document:", error);
         }
