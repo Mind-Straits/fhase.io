@@ -1,7 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { useSignInWithGoogle } from "react-firebase-hooks/auth";
 import { auth } from "@/app/firebase/config";
+import firestore from "@/app/firebase/firebaseQueries";
 import { useRouter } from "next/navigation";
 
 const SignInPage = () => {
@@ -10,6 +12,7 @@ const SignInPage = () => {
   const [showPassword, setShowPassword] = useState(true);
   const [rememberMe, setRememberMe] = useState(false);
 
+  // Log in with Email and Password
   const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
   const router = useRouter();
 
@@ -26,6 +29,26 @@ const SignInPage = () => {
     }
   };
 
+  // Log in With Google
+  const [signInWithGoogle, userGoogle, loadingGoogle, errorGoogle] =
+    useSignInWithGoogle(auth);
+
+  useEffect(() => {
+    const createUserDocument = async () => {
+      if (userGoogle) {
+        const { user } = userGoogle;
+        try {
+          await firestore.createDocument("user", user.uid, {});
+          router.push("/dashboard");
+        } catch (error) {
+          console.error("Error creating user document:", error);
+        }
+      }
+    };
+
+    createUserDocument();
+  }, [userGoogle, router]);
+
   return (
     <div className="bg-gray-100 container max-w-full mx-auto pb-[130px]">
       <div className="bg-white flex items-center justify-start w-full py-3">
@@ -41,21 +64,44 @@ const SignInPage = () => {
           <div className="relative flex flex-wrap">
             <div className="w-full relative">
               <div className="bg-white p-6 rounded-md mt-6">
-                <div className="mb-5 pb-1 border-b-2 text-center font-base text-gray-700">
-                  <span>
-                    By{" "}
-                    <a
-                      className="text-blue-500"
-                      href="https://twitter.com/framansi"
+                <div className="mb-3 pb-1 text-center font-base text-gray-700">
+                  <div className="mb-5 flex justify-between items-center mt-2">
+                    <div className="text-left text-xl font-semibold text-black">
+                      Log In
+                    </div>
+                    <div className="flex-grow mx-4"></div>
+                  </div>
+                  <div className="flex justify-center py-2 ">
+                    <button
+                      type="button"
+                      onClick={() => signInWithGoogle()}
+                      className="mb-3 flex items-center justify-center bg-white border border-gray-300 rounded-lg px-6 py-3 shadow-sm hover:bg-gray-100"
                     >
-                      @fhase.io
-                    </a>
-                  </span>
+                      <img
+                        src="https://developers.google.com/identity/images/g-logo.png"
+                        alt="Google logo"
+                        className="w-5 h-5 mr-2"
+                      />
+                      <span className="text-gray-700 font-medium">
+                        Sign in with Google
+                      </span>
+                    </button>
+                    {errorGoogle && (
+                      <div className="text-red-500 my-2">
+                        {errorGoogle.message}
+                      </div>
+                    )}
+                    {loadingGoogle && (
+                      <div className="text-gray-500 my-2">Loading...</div>
+                    )}
+                  </div>
+                  <div className="flex items-center">
+                    <div className="flex-grow border-t border-gray-300"></div>
+                    <span className="mx-4 text-gray-500">or</span>
+                    <div className="flex-grow border-t border-gray-300"></div>
+                  </div>
                 </div>
-                <div className="text-center font-semibold text-black">
-                  Welcome
-                </div>
-                <form className="mt-8" onSubmit={handleSignIn}>
+                <form onSubmit={handleSignIn}>
                   <div className="mx-auto max-w-lg">
                     <div className="py-2">
                       <span className="px-1 text-sm text-gray-600">
@@ -131,7 +177,7 @@ const SignInPage = () => {
                       type="submit"
                       className="mt-3 text-lg font-semibold bg-gray-800 w-full text-white rounded-lg px-6 py-3 block shadow-xl hover:text-white hover:bg-black"
                     >
-                      Sign In
+                      Log In
                     </button>
                     <div className="flex justify-center gap-4">
                       <label className="block text-gray-500 font-bold my-4 text-sm">
