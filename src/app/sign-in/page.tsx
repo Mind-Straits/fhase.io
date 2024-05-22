@@ -5,6 +5,7 @@ import { useSignInWithGoogle } from "react-firebase-hooks/auth";
 import { auth } from "@/app/firebase/config";
 import firestore from "@/app/firebase/firebaseQueries";
 import { useRouter } from "next/navigation";
+import { User } from "firebase/auth";
 
 const SignInPage = () => {
   const [email, setEmail] = useState("");
@@ -29,25 +30,39 @@ const SignInPage = () => {
     }
   };
 
-  // Log in With Google
   const [signInWithGoogle, userGoogle, loadingGoogle, errorGoogle] =
     useSignInWithGoogle(auth);
+  interface UserDoc {
+    email: string;
+    username: string;
+  }
 
   useEffect(() => {
-    const createUserDocument = async () => {
-      if (userGoogle) {
-        const { user } = userGoogle;
-        try {
+    const checkUserDocument = async (user: User) => {
+      try {
+        const userDoc = await firestore.getDocumentById("user", user.uid);
+
+        if (userDoc) {
+          const typedUserDoc = userDoc as UserDoc;
+          if (typedUserDoc.username && typedUserDoc.email) {
+            router.push("/dashboard");
+          } else {
+            router.push("/sign-up?fromGoogle=true");
+          }
+        } else {
           await firestore.createDocument("user", user.uid, {});
           router.push("/sign-up?fromGoogle=true");
-        } catch (error) {
-          console.error("Error creating user document:", error);
         }
+      } catch (error) {
+        console.error("Error checking user document:", error);
       }
     };
 
-    createUserDocument();
-  }, [userGoogle, router]);
+    if (userGoogle) {
+      const { user } = userGoogle;
+      checkUserDocument(user);
+    }
+  }, [userGoogle]);
 
   return (
     <div className="bg-gray-100 container max-w-full mx-auto pb-[130px]">
