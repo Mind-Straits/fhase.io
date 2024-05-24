@@ -10,6 +10,7 @@ import {
   deleteDoc,
   query,
   where,
+  onSnapshot,
 } from "firebase/firestore";
 
 class FirebaseFirestore {
@@ -25,7 +26,7 @@ class FirebaseFirestore {
     if (docSnap.exists()) {
       return docSnap.data();
     } else {
-      throw new Error("Document not found");
+      return null; // Return null if the document is not found
     }
   }
 
@@ -56,6 +57,15 @@ class FirebaseFirestore {
   async createDocument(collectionName, documentId, data) {
     const docRef = doc(this.db, collectionName, documentId);
     await setDoc(docRef, data);
+    // Return a promise that resolves when the document is created
+    return new Promise((resolve) => {
+      const unsubscribe = onSnapshot(docRef, (snapshot) => {
+        if (snapshot.exists()) {
+          unsubscribe();
+          resolve(null);
+        }
+      });
+    });
   }
 
   // Update an existing document

@@ -32,6 +32,7 @@ const SignInPage = () => {
 
   const [signInWithGoogle, userGoogle, loadingGoogle, errorGoogle] =
     useSignInWithGoogle(auth);
+
   interface UserDoc {
     email: string;
     username: string;
@@ -41,7 +42,6 @@ const SignInPage = () => {
     const checkUserDocument = async (user: User) => {
       try {
         const userDoc = await firestore.getDocumentById("user", user.uid);
-
         if (userDoc) {
           const typedUserDoc = userDoc as UserDoc;
           if (typedUserDoc.username && typedUserDoc.email) {
@@ -50,6 +50,7 @@ const SignInPage = () => {
             router.push("/sign-up?fromGoogle=true");
           }
         } else {
+          // User document not found, create a new document
           await firestore.createDocument("user", user.uid, {});
           router.push("/sign-up?fromGoogle=true");
         }
