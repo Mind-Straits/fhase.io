@@ -12,6 +12,7 @@ const SignInPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(true);
   const [rememberMe, setRememberMe] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Log in with Email and Password
   const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
@@ -22,11 +23,27 @@ const SignInPage = () => {
     try {
       const res = await signInWithEmailAndPassword(email, password);
       console.log({ res });
-      setEmail("");
-      setPassword("");
-      router.push("/dashboard");
+
+      if (res?.user) {
+        const userDoc = await firestore.getDocumentById("user", res?.user.uid);
+        if (userDoc) {
+          // User exists in Firestore, navigate to the dashboard
+          setEmail("");
+          setPassword("");
+          router.push("/dashboard");
+        } else {
+          // User doesn't exist in Firestore, display an error message
+          console.error("User not found in Firestore");
+          setErrorMessage("Username or password is wrong. Try again!");
+        }
+      } else {
+        // Handle the case when res.user is undefined
+        console.error("User not found");
+        setErrorMessage("Username or password is wrong. Try again!");
+      }
     } catch (e) {
       console.error(e);
+      setErrorMessage("Username or password is wrong. Try again!");
     }
   };
 
@@ -119,6 +136,9 @@ const SignInPage = () => {
                 </div>
                 <form onSubmit={handleSignIn}>
                   <div className="mx-auto max-w-lg">
+                    {errorMessage && (
+                      <div className="text-red-500 mb-4">{errorMessage}</div>
+                    )}
                     <div className="py-2">
                       <span className="px-1 text-sm text-gray-600">
                         Enter email
