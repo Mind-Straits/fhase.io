@@ -4,16 +4,29 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/app/firebase/config";
 import firestore from "@/app/firebase/firebaseQueries";
 import FileUpload from "./components/fileUpload";
+import { useRouter } from "next/navigation";
+import firebaseAuth from "@/app/firebase/firebaseAuth";
 
 function Dashboard() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [uid, setUid] = useState("");
+  const router = useRouter();
 
   //handle aside section indicator
   const [selectedItem, setSelectedItem] = useState("dashboard");
   const handleItemClick = (item: string) => {
     setSelectedItem(item);
+  };
+
+  //handle signout
+  const handleLogout = async () => {
+    try {
+      await firebaseAuth.logout();
+      router.push("/sign-in");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
 
   //file uploading
@@ -261,8 +274,17 @@ function Dashboard() {
             <li>
               <a className="" href="#">
                 <button
-                  className="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 w-full flex items-center gap-4 px-4 capitalize"
+                  className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg ${
+                    selectedItem === "logout"
+                      ? "bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                      : "text-white hover:bg-white/10 active:bg-white/30"
+                  } w-full flex items-center gap-4 px-4 capitalize`}
                   type="button"
+                  onClick={() => {
+                    handleItemClick("logout");
+                    setShowFileUpload(false);
+                    handleLogout();
+                  }}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -273,7 +295,7 @@ function Dashboard() {
                   >
                     <path
                       fill-rule="evenodd"
-                      d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z"
+                      d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z"
                       clip-rule="evenodd"
                     ></path>
                   </svg>

@@ -1,4 +1,9 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+} from "firebase/auth";
 import { app } from "./config";
 
 class FirebaseAuth {
@@ -13,6 +18,13 @@ class FirebaseAuth {
       return result.user;
     } catch (error) {
       throw new Error("Error during Google Sign-In: " + error.message);
+    }
+  }
+  async logout() {
+    try {
+      await signOut(this.auth);
+    } catch (error) {
+      throw new Error("Error During logout:" + error.message);
     }
   }
 }
