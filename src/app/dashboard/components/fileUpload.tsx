@@ -1,15 +1,16 @@
 import React, { useRef, useState } from "react";
 import { storage } from "@/app/firebase/config";
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 interface FileUploadProps {
-  onFileUpload: (file: File) => void;
   uid: string;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, uid }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -31,7 +32,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, uid }) => {
   const handleFileUpload = (file: File) => {
     if (file && file.type === "application/pdf") {
       setSelectedFile(file);
-      onFileUpload(file);
     } else {
       alert("Only PDF files are supported.");
     }
@@ -39,20 +39,41 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, uid }) => {
 
   const handleUploadClick = () => {
     if (selectedFile) {
+      setIsUploading(true);
       const userFolderRef = ref(storage, `users/${uid}`);
       const fileRef = ref(userFolderRef, selectedFile.name);
 
-      uploadBytes(fileRef, selectedFile).then(() => {
-        alert("PDF file uploaded successfully.");
-        setSelectedFile(null);
-      });
+      const uploadTask = uploadBytesResumable(fileRef, selectedFile);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          setUploadProgress(progress);
+        },
+        (error) => {
+          console.error("Error uploading file:", error);
+          setIsUploading(false);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            console.log("File available at", downloadURL);
+            setIsUploading(false);
+            setSelectedFile(null);
+            setUploadProgress(0);
+            alert("File uploaded successfully!");
+          });
+        }
+      );
     } else {
       alert("Please select a file.");
     }
   };
 
   return (
-    <div>
+    <div className="flex flex-col justify-center items-center h-screen">
       <div
         className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center"
         onDragOver={handleDragOver}
@@ -84,7 +105,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, uid }) => {
         {selectedFile ? (
           <p className="text-gray-600">{selectedFile.name}</p>
         ) : (
-          <p className="text-gray-600">Drag and drop a file</p>
+          <p className="text-gray-600">Drag and drop a file here</p>
         )}
         <input
           type="file"
@@ -94,7 +115,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, uid }) => {
           className="hidden"
         />
       </div>
-      {selectedFile && (
+      {selectedFile && !isUploading && (
         <div className="flex justify-center">
           <button
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
@@ -102,6 +123,17 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, uid }) => {
           >
             Upload PDF
           </button>
+        </div>
+      )}
+      {isUploading && (
+        <div className="mt-4">
+          <div className="w-64 h-2 bg-gray-300 rounded-full">
+            <div
+              className="h-2 bg-blue-500 rounded-full"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+          <p className="mt-2 text-gray-600">{uploadProgress}% uploaded</p>
         </div>
       )}
     </div>
