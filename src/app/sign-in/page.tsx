@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useSignInWithGoogle } from "react-firebase-hooks/auth";
 import { auth } from "@/app/firebase/config";
-import firestore from "@/app/firebase/firebaseQueries";
+import firestore from "@/app/firebase/firebaseFirestoreQueries";
 import { useRouter } from "next/navigation";
 import { User } from "firebase/auth";
 

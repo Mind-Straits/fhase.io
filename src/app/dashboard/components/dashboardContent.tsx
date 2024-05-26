@@ -1,11 +1,30 @@
 // DashboardContent.tsx
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { firebaseStorage } from "@/app/firebase/firebaseStorageQueries";
 
-const DashboardContent = () => {
+interface DashboardContentProps {
+  uid: string;
+}
+
+const DashboardContent: React.FC<DashboardContentProps> = ({ uid }) => {
+  const [totalPDFs, setTotalPDFs] = useState(0);
+
+  useEffect(() => {
+    const fetchTotalPDFs = async () => {
+      try {
+        const totalPDFs = await firebaseStorage.getTotalPDFs(uid);
+        setTotalPDFs(totalPDFs);
+      } catch (error) {
+        console.error("Error fetching total PDFs:", error);
+      }
+    };
+
+    fetchTotalPDFs();
+  }, [uid]);
   return (
     <>
-      <div className="mt-6">
+      <div className="mt-8">
         <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
           <div className="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md">
             <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-blue-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
@@ -27,10 +46,10 @@ const DashboardContent = () => {
             </div>
             <div className="p-4 text-right">
               <p className="block antialiased font-sans text-sm leading-normal font-normal text-blue-gray-600">
-                Today's Money
+                Total PDFs
               </p>
               <h4 className="block antialiased tracking-normal font-sans text-2xl font-semibold leading-snug text-blue-gray-900">
-                $53k
+                {totalPDFs}
               </h4>
             </div>
             <div className="border-t border-blue-gray-50 p-4">

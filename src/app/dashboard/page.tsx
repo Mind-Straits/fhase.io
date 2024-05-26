@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/app/firebase/config";
-import firestore from "@/app/firebase/firebaseQueries";
+import firestore from "@/app/firebase/firebaseFirestoreQueries";
 import FileUpload from "./components/fileUpload";
 import { useRouter } from "next/navigation";
 import firebaseAuth from "@/app/firebase/firebaseAuth";
@@ -315,7 +315,7 @@ function Dashboard() {
                   <li className="flex items-center text-blue-gray-900 antialiased font-sans text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-light-blue-500">
                     <a href="#">
                       <p className="block antialiased font-sans text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">
-                        dashboard
+                        Home
                       </p>
                     </a>
                     <span className="text-gray-500 text-sm antialiased font-sans font-normal leading-normal mx-2 pointer-events-none select-none">
@@ -329,9 +329,6 @@ function Dashboard() {
                   </li>
                 </ol>
               </nav>
-              <h6 className="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-gray-900">
-                {pageTrack(selectedItem)}
-              </h6>
             </div>
             <div className="flex items-center">
               <div className="mr-auto md:mr-4 md:w-56">
@@ -445,7 +442,7 @@ function Dashboard() {
             <FileUpload uid={uid} />
           ) : (
             <>
-              {selectedItem === "dashboard" && <DashboardContent />},
+              {selectedItem === "dashboard" && <DashboardContent uid={uid} />},
               {selectedItem === "profile" && <ProfileContent />},
               {selectedItem === "table" && <TableContent />},
               {selectedItem === "notification" && <NotificationPage />},

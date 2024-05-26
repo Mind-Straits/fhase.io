@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "@/app/firebase/config";
-import firestore from "@/app/firebase/firebaseQueries";
+import firestore from "@/app/firebase/firebaseFirestoreQueries";
 import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {

@@ -40,7 +40,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
   const handleUploadClick = () => {
     if (selectedFile) {
       setIsUploading(true);
-      const userFolderRef = ref(storage, `users/${uid}`);
+      const userFolderRef = ref(storage, `${uid}/pdf`);
       const fileRef = ref(userFolderRef, selectedFile.name);
 
       const uploadTask = uploadBytesResumable(fileRef, selectedFile);
