@@ -8,6 +8,9 @@ import { useRouter } from "next/navigation";
 import firebaseAuth from "@/app/firebase/firebaseAuth";
 import withAuth from "@/app/firebase/withAuth";
 import DashboardContent from "./components/dashboardContent";
+import ProfileContent from "./components/profile";
+import TableContent from "./components/tables";
+import NotificationPage from "./components/notification";
 
 function Dashboard() {
   const [username, setUsername] = useState("");
@@ -430,7 +433,12 @@ function Dashboard() {
           {selectedItem === "upload" ? (
             <FileUpload uid={uid} />
           ) : (
-            <>{selectedItem === "dashboard" && <DashboardContent />}</>
+            <>
+              {selectedItem === "dashboard" && <DashboardContent />},
+              {selectedItem === "profile" && <ProfileContent />},
+              {selectedItem === "table" && <TableContent />},
+              {selectedItem === "notification" && <NotificationPage />},
+            </>
           )}
         </div>
       </div>
