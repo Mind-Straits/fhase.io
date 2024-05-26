@@ -6,6 +6,7 @@ import firestore from "@/app/firebase/firebaseQueries";
 import FileUpload from "./components/fileUpload";
 import { useRouter } from "next/navigation";
 import firebaseAuth from "@/app/firebase/firebaseAuth";
+import withAuth from "@/app/firebase/withAuth";
 
 function Dashboard() {
   const [username, setUsername] = useState("");
@@ -862,4 +863,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default withAuth(Dashboard);
