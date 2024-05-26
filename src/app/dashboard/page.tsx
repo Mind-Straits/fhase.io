@@ -20,10 +20,15 @@ function Dashboard() {
 
   //handle aside section indicator
   const [selectedItem, setSelectedItem] = useState("dashboard");
-  const handleItemClick = (item: string) => {
+  const handleItemClick = (item: string = "Home") => {
     setSelectedItem(item);
+    pageTrack(item);
   };
 
+  // page tracker
+  const pageTrack = (x: string): string => {
+    return x;
+  };
   //handle signout
   const handleLogout = async () => {
     try {
@@ -280,11 +285,17 @@ function Dashboard() {
                     className="w-5 h-5 text-inherit"
                   >
                     <path
-                      fill-rule="evenodd"
-                      d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z"
-                      clip-rule="evenodd"
-                    ></path>
+                      fillRule="evenodd"
+                      d="M15 3a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V5H8v14h6v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H8a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3h7z"
+                      clipRule="evenodd"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      d="M17.707 8.293a1 1 0 0 0-1.414 1.414L18.586 12H11a1 1 0 1 0 0 2h7.586l-2.293 2.293a1 1 0 1 0 1.414 1.414l4-4a1 1 0 0 0 0-1.414l-4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
+
                   <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
                     Log Out
                   </p>
@@ -313,13 +324,13 @@ function Dashboard() {
                   </li>
                   <li className="flex items-center text-blue-900 antialiased font-sans text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
                     <p className="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-normal">
-                      home
+                      {pageTrack(selectedItem)}
                     </p>
                   </li>
                 </ol>
               </nav>
               <h6 className="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-gray-900">
-                home
+                {pageTrack(selectedItem)}
               </h6>
             </div>
             <div className="flex items-center">
