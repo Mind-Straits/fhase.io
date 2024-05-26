@@ -256,6 +256,39 @@ function Dashboard() {
                 </button>
               </a>
             </li>
+            <li>
+              <a className="" href="#">
+                <button
+                  className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg ${
+                    selectedItem === "admin"
+                      ? "bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                      : "text-white hover:bg-white/10 active:bg-white/30"
+                  } w-full flex items-center gap-4 px-4 capitalize`}
+                  type="button"
+                  onClick={() => {
+                    handleItemClick("admin");
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                    className="w-5 h-5 text-inherit"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M12 2C10.343 2 9 3.343 9 5s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4zm5.293-4.707a1 1 0 00-1.414 0l-1.293 1.293A1 1 0 1015.293 10.707L16.586 9.414a1 1 0 000-1.414zm-10.586 0a1 1 0 010 1.414L7.414 10.707A1 1 0 006 9.414L4.707 8.121a1 1 0 011.414-1.414L7.414 7.293zm5.293 2.293a1 1 0 00-1 1v3a1 1 0 002 0v-3a1 1 0 00-1-1zm-4-7a1 1 0 00-1 1v1h2V3a1 1 0 00-1-1zm8 0a1 1 0 00-1 1v1h2V3a1 1 0 00-1-1z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+
+                  <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
+                    admin
+                  </p>
+                </button>
+              </a>
+            </li>
           </ul>
           <ul className="mb-4 flex flex-col gap-1">
             <li className="mx-3.5 mt-4 mb-2">
