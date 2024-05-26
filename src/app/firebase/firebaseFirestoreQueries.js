@@ -79,6 +79,19 @@ class FirebaseFirestore {
     const docRef = doc(this.db, collectionName, documentId);
     await deleteDoc(docRef);
   }
+
+  // Get Email of uid
+  async getUserEmailByUid(uid) {
+    const usersCollectionRef = collection(this.db, "user");
+    const q = query(usersCollectionRef, where("uid", "==", uid));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      return userDoc.data().email;
+    } else {
+      return null;
+    }
+  }
 }
 
 export default new FirebaseFirestore();

@@ -19,6 +19,24 @@ class FirebaseStorage {
     const pdfNames = items.map((item) => item.name);
     return pdfNames;
   }
+  // Get all pdf
+  async getAllPDFsForAllUsers() {
+    const folderRef = ref(this.storage, "/");
+    const { prefixes } = await listAll(folderRef);
+    const pdfNames = [];
+
+    for (const userFolder of prefixes) {
+      const userPDFRef = ref(this.storage, `${userFolder.name}/pdf`);
+      const { items } = await listAll(userPDFRef);
+      const userPDFNames = items.map((item) => ({
+        name: item.name,
+        path: item.fullPath,
+      }));
+      pdfNames.push(...userPDFNames);
+    }
+
+    return pdfNames;
+  }
 }
 
 export const firebaseStorage = new FirebaseStorage();
