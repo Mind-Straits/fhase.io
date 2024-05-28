@@ -28,7 +28,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ uid }) => {
   return (
     <>
       <div className="mt-8">
-        <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mb-12 grid gap-y-10 gap-x-2 md:grid-cols-2 xl:grid-cols-4">
           <div className="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md">
             <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-blue-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
               <svg
@@ -123,7 +123,6 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ uid }) => {
         </div>
         <div className="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-2">
           <div className="relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md overflow-hidden">
-            {/* First project section */}
             <div className="relative bg-clip-border rounded-xl overflow-hidden bg-transparent text-gray-700 shadow-none m-0 flex items-center justify-between p-6">
               <div>
                 <h6 className="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-blue-gray-900 mb-1">
