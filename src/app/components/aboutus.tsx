@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 function AboutUs() {
   return (
@@ -7,7 +8,7 @@ function AboutUs() {
         <div className="w-full lg:w-1/2 mx-8">
           <div className="text-4xl text-[#083B56] font-dark font-extrabold mb-8">
             {" "}
-            ABOUT US
+            ABOUT US{" "}
           </div>
           <p className="text-md font-bold leading-normal mb-8">
             Comprising a team of visionary entrepreneurs and financial
@@ -22,7 +23,13 @@ function AboutUs() {
           </p>
         </div>
         <div className="w-full lg:flex lg:justify-end lg:w-1/2 mx-5 my-12">
-          <img src="/aboutus.png" alt="Hero" className="w-[400px]" />
+          <Image
+            src="/aboutus.png"
+            alt="Hero"
+            width={400}
+            height={300}
+            className="w-[400px]"
+          />
         </div>
       </div>
     </div>

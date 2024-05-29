@@ -94,4 +94,5 @@ class FirebaseFirestore {
   }
 }
 
-export default new FirebaseFirestore();
+const firebaseFirestore = new FirebaseFirestore();
+export default firebaseFirestore;

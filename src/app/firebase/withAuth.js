@@ -5,7 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/app/firebase/config";
 
 const withAuth = (WrappedComponent) => {
-  return (props) => {
+  const AuthenticatedComponent = (props) => {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
 
@@ -31,6 +31,16 @@ const withAuth = (WrappedComponent) => {
 
     return <WrappedComponent {...props} />;
   };
+
+  AuthenticatedComponent.displayName = `withAuth(${getDisplayName(
+    WrappedComponent
+  )})`;
+
+  return AuthenticatedComponent;
+};
+
+const getDisplayName = (WrappedComponent) => {
+  return WrappedComponent.displayName || WrappedComponent.name || "Component";
 };
 
 export default withAuth;

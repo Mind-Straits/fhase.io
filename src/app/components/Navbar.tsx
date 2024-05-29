@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 
 const Navbar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -108,7 +109,13 @@ const Navbar = () => {
             onClick={() => (window.location.href = "/sign-in")}
           >
             Log In 
-            <img className="h-[21px]" src="\usericon.png" alt="" />
+            <Image
+              className="h-[21px]"
+              src="/usericon.png"
+              alt=""
+              width={21}
+              height={21}
+            />
           </button>
         </div>
       </nav>

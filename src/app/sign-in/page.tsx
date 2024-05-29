@@ -229,7 +229,7 @@ const SignInPage = () => {
                           href="/sign-up"
                           className="cursor-pointer tracking-tighter text-black border-b-2 border-gray-200 hover:border-gray-400"
                         >
-                          <span>Don't have account yet?</span>
+                          <span>Don&apos;t have account yet?</span>
                         </a>
                       </label>
                     </div>

@@ -1,11 +1,11 @@
 import React from "react";
+import Image from "next/image";
 
 function Footer() {
   return (
-    <footer className="relative bg-[#ECF0F2] pt-8 pb-6 ">
-      <div className=" flex justify-center gap-10 pb-12">
-        {" "}
-        <div className="text-[#083B56] px-4 ">
+    <footer className="relative bg-[#ECF0F2] pt-8 pb-6">
+      <div className="flex justify-center gap-10 pb-12">
+        <div className="text-[#083B56] px-4">
           <h4 className="text-3xl fonat-semibold text-blueGray-700">
             Fhase Analytics
           </h4>
@@ -17,7 +17,7 @@ function Footer() {
               className="bg-white text-lightBlue-400 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2"
               type="button"
             >
-              <img src="/fb.png" alt="bg-white" />
+              <Image src="/fb.png" alt="bg-white" width={24} height={24} />
             </button>
           </div>
         </div>

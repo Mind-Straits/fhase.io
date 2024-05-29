@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { storage } from "@/app/firebase/config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import Image from "next/image";
 
 interface FileUploadProps {
   uid: string;
@@ -81,9 +82,11 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
         onClick={() => fileInputRef.current?.click()}
       >
         {selectedFile ? (
-          <img
+          <Image
             src="/pdfLogo.png"
             alt="PDF Logo"
+            width={48}
+            height={60}
             className="h-15 w-12 mx-auto mb-2"
           />
         ) : (

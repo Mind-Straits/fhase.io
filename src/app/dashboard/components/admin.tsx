@@ -42,7 +42,7 @@ const AdminPage = () => {
     fetchPDFs().then(() => {
       fetchUserEmails();
     });
-  }, []);
+  }, [pdfData]);
 
   const handleDownload = async (pdfPath: string) => {
     const downloadURL = await getDownloadURL(

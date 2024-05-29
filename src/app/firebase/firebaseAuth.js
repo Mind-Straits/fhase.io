@@ -29,4 +29,5 @@ class FirebaseAuth {
   }
 }
 
-export default new FirebaseAuth();
+const firebaseAuth = new FirebaseAuth();
+export default firebaseAuth;
