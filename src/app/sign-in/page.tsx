@@ -80,7 +80,7 @@ const SignInPage = () => {
       const { user } = userGoogle;
       checkUserDocument(user);
     }
-  }, [userGoogle]);
+  }, [userGoogle, router]);
 
   return (
     <div className="bg-gray-100 container max-w-full mx-auto pb-[130px]">
