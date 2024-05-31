@@ -9,8 +9,8 @@ interface FileUploadProps {
 
 const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<number[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -19,57 +19,68 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleFileUpload(file);
+    const files = Array.from(e.dataTransfer.files);
+    handleFileUpload(files);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
-    }
+    const files = Array.from(e.target.files || []);
+    handleFileUpload(files);
   };
 
-  const handleFileUpload = (file: File) => {
-    if (file && file.type === "application/pdf") {
-      setSelectedFile(file);
+  const handleFileUpload = (files: File[]) => {
+    const pdfFiles = files.filter((file) => file.type === "application/pdf");
+    if (pdfFiles.length > 0) {
+      setSelectedFiles(pdfFiles);
     } else {
       alert("Only PDF files are supported.");
     }
   };
 
   const handleUploadClick = () => {
-    if (selectedFile) {
+    if (selectedFiles.length > 0) {
       setIsUploading(true);
-      const userFolderRef = ref(storage, `${uid}/pdf`);
-      const fileRef = ref(userFolderRef, selectedFile.name);
+      const uploadTasks = selectedFiles.map((file) => {
+        const userFolderRef = ref(storage, `${uid}/pdf`);
+        const fileRef = ref(userFolderRef, file.name);
+        return uploadBytesResumable(fileRef, file);
+      });
 
-      const uploadTask = uploadBytesResumable(fileRef, selectedFile);
+      const totalFiles = uploadTasks.length;
+      let completedFiles = 0;
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          setUploadProgress(progress);
-        },
-        (error) => {
-          console.error("Error uploading file:", error);
-          setIsUploading(false);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log("File available at", downloadURL);
-            setIsUploading(false);
-            setSelectedFile(null);
-            setUploadProgress(0);
-            alert("File uploaded successfully!");
-          });
-        }
-      );
+      uploadTasks.forEach((uploadTask, index) => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            );
+            setUploadProgress((prevProgresses) => {
+              const newProgresses = [...prevProgresses];
+              newProgresses[index] = progress;
+              return newProgresses;
+            });
+          },
+          (error) => {
+            console.error(
+              `Error uploading file ${selectedFiles[index].name}:`,
+              error
+            );
+          },
+          () => {
+            completedFiles++;
+            if (completedFiles === totalFiles) {
+              setIsUploading(false);
+              setSelectedFiles([]);
+              setUploadProgress([]);
+              alert("All files uploaded successfully!");
+            }
+          }
+        );
+      });
     } else {
-      alert("Please select a file.");
+      alert("Please select at least one file.");
     }
   };
 
@@ -81,7 +92,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
       >
-        {selectedFile ? (
+        {selectedFiles.length > 0 ? (
           <Image
             src="/pdfLogo.png"
             alt="PDF Logo"
@@ -105,10 +116,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
             />
           </svg>
         )}
-        {selectedFile ? (
-          <p className="text-gray-600">{selectedFile.name}</p>
+        {selectedFiles.length > 0 ? (
+          <p className="text-gray-600">
+            {selectedFiles.length} file{selectedFiles.length > 1 ? "s" : ""}{" "}
+            selected
+          </p>
         ) : (
-          <p className="text-gray-600">Drag and drop a file here</p>
+          <p className="text-gray-600">Drag and drop files here</p>
         )}
         <input
           type="file"
@@ -116,27 +130,36 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
           ref={fileInputRef}
           onChange={handleFileSelect}
           className="hidden"
+          multiple
         />
       </div>
-      {selectedFile && !isUploading && (
+      {selectedFiles.length > 0 && !isUploading && (
         <div className="flex justify-center">
           <button
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
             onClick={handleUploadClick}
           >
-            Upload PDF
+            Upload PDFs
           </button>
         </div>
       )}
-      {isUploading && (
-        <div className="mt-4">
-          <div className="w-64 h-2 bg-gray-300 rounded-full">
-            <div
-              className="h-2 bg-blue-500 rounded-full"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
-          </div>
-          <p className="mt-2 text-gray-600">{uploadProgress}% uploaded</p>
+      {selectedFiles.length > 0 && (
+        <div className="mt-4 w-full max-w-md mx-auto">
+          {selectedFiles.map((file, index) => (
+            <div key={file.name} className="mb-4 text-center">
+              <p className="text-gray-600">
+                {file.name} {isUploading && `(${uploadProgress[index] || 0}%)`}
+              </p>
+              {isUploading && (
+                <div className="w-64 h-2 bg-gray-300 rounded-full mx-auto">
+                  <div
+                    className="h-2 bg-blue-500 rounded-full"
+                    style={{ width: `${uploadProgress[index] || 0}%` }}
+                  ></div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
