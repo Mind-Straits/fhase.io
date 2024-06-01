@@ -5,17 +5,27 @@ import { firebaseStorage } from "@/app/firebase/firebaseStorageQueries";
 import { getDownloadURL, ref } from "firebase/storage";
 import firebaseFirestore from "@/app/firebase/firebaseFirestoreQueries";
 
-const AdminPage = () => {
-  const [pdfData, setPdfData] = useState<{
-    [uid: string]: { name: string; path: string }[];
-  }>({});
-  const [userEmails, setUserEmails] = useState<{ [uid: string]: string }>({});
+interface PDF {
+  name: string;
+  path: string;
+}
+
+interface PDFData {
+  [uid: string]: PDF[];
+}
+
+interface UserEmails {
+  [uid: string]: string;
+}
+
+const AdminPage: React.FC = () => {
+  const [pdfData, setPdfData] = useState<PDFData>({});
+  const [userEmails, setUserEmails] = useState<UserEmails>({});
 
   useEffect(() => {
     const fetchPDFs = async () => {
       const pdfs = await firebaseStorage.getAllPDFsForAllUsers();
-      const groupedPDFs: { [uid: string]: { name: string; path: string }[] } =
-        {};
+      const groupedPDFs: PDFData = {};
 
       for (const pdf of pdfs) {
         const uid = pdf.path.split("/")[0];
@@ -26,23 +36,15 @@ const AdminPage = () => {
       }
 
       setPdfData(groupedPDFs);
+
+      // Fetch user emails after PDFs are set
+      const emails = await firebaseFirestore.getAllUserEmails();
+      console.log("Fetched emails:", emails);
+      setUserEmails(emails as UserEmails);
     };
 
-    const fetchUserEmails = async () => {
-      const emails: { [uid: string]: string } = {};
-      for (const uid of Object.keys(pdfData)) {
-        const email = await firebaseFirestore.getUserEmailByUid(uid);
-        if (email) {
-          emails[uid] = email;
-        }
-      }
-      setUserEmails(emails);
-    };
-
-    fetchPDFs().then(() => {
-      fetchUserEmails();
-    });
-  }, [pdfData]);
+    fetchPDFs();
+  }, []);
 
   const handleDownload = async (pdfPath: string) => {
     const downloadURL = await getDownloadURL(
