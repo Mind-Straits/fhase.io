@@ -58,7 +58,13 @@ const AdminPage: React.FC = () => {
       {Object.entries(pdfData).map(([uid, pdfs]) => (
         <div key={uid} className="mb-8">
           <h2 className="text-2xl font-bold text-gray-600 mb-4">
-            {userEmails[uid] || uid}
+            {userEmails[uid] ? (
+              userEmails[uid]
+            ) : (
+              <div className="flex items-left justify-left">
+                <div className="w-8 h-8 border-4 border-gray-300 border-t-4 border-t-blue-500 rounded-full animate-spin"></div>
+              </div>
+            )}
           </h2>
           <table className="w-full table-auto border-collapse">
             <thead>

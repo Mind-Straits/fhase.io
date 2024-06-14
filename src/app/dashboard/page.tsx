@@ -20,7 +20,12 @@ function Dashboard() {
   const router = useRouter();
 
   // For admin panel access
-  const isAdmin = uid === "wXCemTTspxZWEmLF0fUvE7C8Nfr2";
+  const adminUIDs = [
+    "wXCemTTspxZWEmLF0fUvE7C8Nfr2",
+    "PgBovGrWLYQkRQxFVUnY5comAj02",
+  ];
+
+  const isAdmin = adminUIDs.includes(uid);
 
   //handle aside section indicator
   const [selectedItem, setSelectedItem] = useState("dashboard");
@@ -39,7 +44,7 @@ function Dashboard() {
       await firebaseAuth.logout();
       router.push("/sign-in");
     } catch (error) {
-      console.error("Error logging out:", error);
+      alert(`Error logging out: ${error}`);
     }
   };
 
@@ -60,7 +65,6 @@ function Dashboard() {
           setEmail(typedUserDoc.email);
         }
       } else {
-        setUid("");
         setUsername("");
         setEmail("");
       }
