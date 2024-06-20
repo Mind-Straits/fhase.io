@@ -23,6 +23,7 @@ function Dashboard() {
   const adminUIDs = [
     "wXCemTTspxZWEmLF0fUvE7C8Nfr2",
     "PgBovGrWLYQkRQxFVUnY5comAj02",
+    "vMNYFCaePkcXGXVehtR6mFrSLqv2",
   ];
 
   const isAdmin = adminUIDs.includes(uid);
