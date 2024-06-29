@@ -7,12 +7,14 @@ interface DigitalizeDataSheetProps {
   pdfName: string;
   uid: string;
   onUpdate: (uid: string, pdfName: string, data: CellData[][]) => void;
+  onFetchData: (uid: string, pdfName: string) => Promise<CellData[][] | null>;
 }
 
 const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
   pdfName,
   uid,
   onUpdate,
+  onFetchData,
 }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const headers = [
@@ -184,80 +186,118 @@ const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
     }
   };
 
+  // If data is available populate table with data
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchAndSetData = async () => {
+    setIsLoading(true);
+    setUpdateMessage(null);
+    try {
+      const fetchedData = await onFetchData(uid, pdfName);
+      if (fetchedData && fetchedData.length > 0) {
+        setData(fetchedData);
+        setUpdateMessage({ type: "success", text: "Data loaded successfully" });
+      } else {
+        setData([initialRow]);
+        setUpdateMessage({
+          type: "success",
+          text: "No existing data found. Starting with an empty table.",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setUpdateMessage({ type: "error", text: "Error loading data" });
+      setData([initialRow]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAndSetData();
+  }, [pdfName, uid]);
+
   return (
     <div className="mt-4 border border-gray-300 p-4 rounded">
       <h3 className="text-lg font-semibold mb-2">
         Digitalize Data for: {pdfName}
       </h3>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              {headers.map((header, index) => (
-                <th
-                  key={index}
-                  className="border border-gray-300 p-2 bg-gray-100"
-                >
-                  <p className="font-bold text-black">{header}</p>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, colIndex) => (
-                  <td key={colIndex} className="border border-gray-300 p-2">
-                    <input
-                      type="text"
-                      value={cell.value}
-                      onChange={(e) =>
-                        handleCellChange(rowIndex, colIndex, e.target.value)
-                      }
-                      className={`w-full text-black ${
-                        cell.error || cell.dateError ? "border-red-500" : ""
-                      } ${
-                        (colIndex === 3 && row[4].value) ||
-                        (colIndex === 4 && row[3].value)
-                          ? "bg-gray-200"
-                          : ""
-                      }`}
-                      placeholder={colIndex === 0 ? "DD-MM-YYYY" : "NULL"}
-                      disabled={Boolean(
-                        (colIndex === 3 && row[4].value) ||
-                          (colIndex === 4 && row[3].value)
-                      )}
-                    />
-                    {cell.error && (
-                      <p className="text-red-500 text-xs">Required</p>
-                    )}
-                    {cell.dateError && (
-                      <p className="text-red-500 text-xs">Wrong format</p>
-                    )}
-                  </td>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500"></div>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr>
+                {headers.map((header, index) => (
+                  <th
+                    key={index}
+                    className="border border-gray-300 p-2 bg-gray-100"
+                  >
+                    <p className="font-bold text-black">{header}</p>
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {data.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, colIndex) => (
+                    <td key={colIndex} className="border border-gray-300 p-2">
+                      <input
+                        type="text"
+                        value={cell.value}
+                        onChange={(e) =>
+                          handleCellChange(rowIndex, colIndex, e.target.value)
+                        }
+                        className={`w-full text-black ${
+                          cell.error || cell.dateError ? "border-red-500" : ""
+                        } ${
+                          (colIndex === 3 && row[4].value) ||
+                          (colIndex === 4 && row[3].value)
+                            ? "bg-gray-200"
+                            : ""
+                        }`}
+                        placeholder={colIndex === 0 ? "DD-MM-YYYY" : "NULL"}
+                        disabled={Boolean(
+                          (colIndex === 3 && row[4].value) ||
+                            (colIndex === 4 && row[3].value)
+                        )}
+                      />
+                      {cell.error && (
+                        <p className="text-red-500 text-xs">Required</p>
+                      )}
+                      {cell.dateError && (
+                        <p className="text-red-500 text-xs">Wrong format</p>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <div className="mt-4 flex justify-between items-center">
         <button
           onClick={addRow}
           className="bg-green-500 text-white px-4 py-2 rounded"
+          disabled={isLoading}
         >
           Add Row
         </button>
         <button
           onClick={handleUpdate}
           className={`bg-purple-500 text-white px-4 py-2 rounded ${
-            isUpdating ? "opacity-50 cursor-not-allowed" : ""
+            isUpdating || isLoading ? "opacity-50 cursor-not-allowed" : ""
           }`}
-          disabled={isUpdating}
+          disabled={isUpdating || isLoading}
         >
           {isUpdating ? "Updating..." : "Update"}
         </button>
-        {isUpdating && (
+        {(isUpdating || isLoading) && (
           <div className="ml-2">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
           </div>
@@ -268,7 +308,9 @@ const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
           className={`mt-2 p-2 rounded ${
             updateMessage.type === "success"
               ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
+              : updateMessage.type === "error"
+              ? "bg-red-100 text-red-700"
+              : "bg-blue-100 text-blue-700"
           }`}
         >
           {updateMessage.text}

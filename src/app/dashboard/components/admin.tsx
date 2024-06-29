@@ -88,6 +88,54 @@ const AdminPage: React.FC = () => {
       console.error("Error updating data:", error);
     }
   };
+  const handleFetchData = async (uid: string, pdfName: string) => {
+    try {
+      const docData = await firebaseFirestore.getDocumentById(
+        `user/${uid}/digitalized_data`,
+        pdfName
+      );
+      if (docData) {
+        // Convert the document data back into the CellData[][] format
+        const rows: CellData[][] = [];
+
+        Object.entries(docData).forEach(([key, value]) => {
+          if (key === "pdfName") return; // Skip the pdfName field
+
+          const match = key.match(/x(\d+)y(\d+)/);
+          if (match) {
+            const [, rowStr, colStr] = match;
+            const row = parseInt(rowStr) - 1;
+            const col = parseInt(colStr) - 1;
+
+            if (!rows[row]) {
+              rows[row] = [];
+            }
+
+            rows[row][col] = { value: value as string, variable: key };
+          }
+        });
+
+        // Fill in any missing cells with empty data
+        const filledRows = rows.map((row) =>
+          Array(6)
+            .fill(null)
+            .map(
+              (_, index) =>
+                row[index] || {
+                  value: "",
+                  variable: `x${rows.indexOf(row) + 1}y${index + 1}`,
+                }
+            )
+        );
+
+        return filledRows;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching document:", error);
+      return null;
+    }
+  };
 
   return (
     <div className="p-6">
@@ -145,6 +193,7 @@ const AdminPage: React.FC = () => {
                           pdfName={pdf.name}
                           uid={uid}
                           onUpdate={handleUpdateData}
+                          onFetchData={handleFetchData}
                         />
                       </td>
                     </tr>
