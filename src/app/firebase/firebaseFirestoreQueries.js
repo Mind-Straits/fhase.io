@@ -13,6 +13,7 @@ import {
   query,
   where,
   onSnapshot,
+  writeBatch
 } from "firebase/firestore";
 
 class FirebaseFirestore {
@@ -98,6 +99,23 @@ class FirebaseFirestore {
     const docRef = doc(this.db, collectionPath, documentId);
     await setDoc(docRef, data, { merge: true });
   }
+
+  async createOrUpdateDocumentBatch(collectionPath, documentId, data) {
+    const batch = writeBatch(this.db);
+    const docRef = doc(this.db, collectionPath, documentId);
+    
+    // Split data into chunks of 500 fields (Firestore limit)
+    const chunkSize = 500;
+    const dataEntries = Object.entries(data);
+    
+    for (let i = 0; i < dataEntries.length; i += chunkSize) {
+      const chunk = Object.fromEntries(dataEntries.slice(i, i + chunkSize));
+      batch.set(docRef, chunk, { merge: true });
+    }
+  
+    await batch.commit();
+  }
+
 }
 
 const firebaseFirestore = new FirebaseFirestore();

@@ -1,6 +1,5 @@
 // DigitalizeDataSheet.tsx
 import { CellData } from "@/app/components/DataTypes/types";
-
 import React, { useState, useEffect } from "react";
 import firebaseFirestore from "@/app/firebase/firebaseFirestoreQueries";
 
@@ -15,6 +14,7 @@ const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
   uid,
   onUpdate,
 }) => {
+  const [isUpdating, setIsUpdating] = useState(false);
   const headers = [
     "Date",
     "Description",
@@ -29,9 +29,15 @@ const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
     error: false,
   }));
 
+  // handle cell data and update message
   const [data, setData] = useState<
     (CellData & { error?: boolean; dateError?: boolean })[][]
   >([initialRow]);
+  const [updateMessage, setUpdateMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
   const [lastBalance, setLastBalance] = useState(0);
 
   const formatDate = (input: string) => {
@@ -130,8 +136,25 @@ const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
     );
   };
 
+  const validateData = (data: CellData[][]) => {
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      if (!row[0].value || !validateDate(row[0].value)) {
+        throw new Error(`Invalid date format in row ${i + 1}`);
+      }
+      if (!row[1].value) {
+        throw new Error(`Missing description in row ${i + 1}`);
+      }
+      // Add more validations as needed
+    }
+  };
+
   const handleUpdate = async () => {
+    setIsUpdating(true);
+    setUpdateMessage(null);
     try {
+      validateData(data);
+
       const formattedData: { [key: string]: string } = {
         pdfName: pdfName,
       };
@@ -142,16 +165,22 @@ const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
         });
       });
 
-      await firebaseFirestore.createOrUpdateDocument(
+      await firebaseFirestore.createOrUpdateDocumentBatch(
         `user/${uid}/digitalized_data`,
         pdfName,
         formattedData
       );
 
       onUpdate(uid, pdfName, data);
-      console.log("Data updated successfully");
+      setUpdateMessage({ type: "success", text: "Data updated successfully" });
     } catch (error) {
       console.error("Error updating data:", error);
+      setUpdateMessage({
+        type: "error",
+        text: "An error occurred while updating data",
+      });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -212,7 +241,7 @@ const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
           </tbody>
         </table>
       </div>
-      <div className="mt-4 flex justify-between">
+      <div className="mt-4 flex justify-between items-center">
         <button
           onClick={addRow}
           className="bg-green-500 text-white px-4 py-2 rounded"
@@ -221,13 +250,31 @@ const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
         </button>
         <button
           onClick={handleUpdate}
-          className="bg-purple-500 text-white px-4 py-2 rounded"
+          className={`bg-purple-500 text-white px-4 py-2 rounded ${
+            isUpdating ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={isUpdating}
         >
-          Update
+          {isUpdating ? "Updating..." : "Update"}
         </button>
+        {isUpdating && (
+          <div className="ml-2">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
+          </div>
+        )}
       </div>
+      {updateMessage && (
+        <div
+          className={`mt-2 p-2 rounded ${
+            updateMessage.type === "success"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}
+        >
+          {updateMessage.text}
+        </div>
+      )}
     </div>
   );
 };
-
 export default DigitalizeDataSheet;
