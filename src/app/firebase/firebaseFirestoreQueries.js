@@ -1,3 +1,5 @@
+// FirebaseFirestore Queries
+
 import { initializeApp, getApps, getApp } from "firebase/app";
 import {
   getFirestore,
@@ -89,6 +91,12 @@ class FirebaseFirestore {
       emails[doc.id] = doc.data().email;
     });
     return emails;
+  }
+
+  // Update excelsheet 
+  async createOrUpdateDocument(collectionPath, documentId, data) {
+    const docRef = doc(this.db, collectionPath, documentId);
+    await setDoc(docRef, data, { merge: true });
   }
 }
 

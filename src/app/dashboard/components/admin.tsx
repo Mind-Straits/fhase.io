@@ -60,9 +60,33 @@ const AdminPage: React.FC = () => {
     setExpandedPdf(expandedPdf === pdfName ? null : pdfName);
   };
 
-  const handleUpdateData = (pdfName: string, data: CellData[][]) => {
-    console.log(`Updating data for ${pdfName}:`, data);
-    // Implement the update logic here (e.g., sending to Firebase)
+  const handleUpdateData = async (
+    uid: string,
+    pdfName: string,
+    data: CellData[][]
+  ) => {
+    console.log(`Updating data for user ${uid}, PDF ${pdfName}:`, data);
+    try {
+      const formattedData: { [key: string]: string } = {
+        pdfName: pdfName,
+      };
+
+      data.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+          formattedData[`x${rowIndex + 1}y${colIndex + 1}`] = cell.value;
+        });
+      });
+
+      await firebaseFirestore.createOrUpdateDocument(
+        `user/${uid}/digitalized_data`,
+        pdfName,
+        formattedData
+      );
+
+      console.log("Data updated successfully");
+    } catch (error) {
+      console.error("Error updating data:", error);
+    }
   };
 
   return (
@@ -70,7 +94,13 @@ const AdminPage: React.FC = () => {
       {Object.entries(pdfData).map(([uid, pdfs]) => (
         <div key={uid} className="mb-8">
           <h2 className="text-2xl font-bold text-gray-600 mb-4">
-            {userEmails[uid] ? userEmails[uid] : <div className="flex items-left justify-left"><div className="w-8 h-8 border-4 border-gray-300 border-t-4 border-t-blue-500 rounded-full animate-spin"></div></div>}
+            {userEmails[uid] ? (
+              userEmails[uid]
+            ) : (
+              <div className="flex items-left justify-left">
+                <div className="w-8 h-8 border-4 border-gray-300 border-t-4 border-t-blue-500 rounded-full animate-spin"></div>
+              </div>
+            )}
           </h2>
           <table className="w-full table-auto border-collapse">
             <thead>
@@ -113,7 +143,8 @@ const AdminPage: React.FC = () => {
                       <td colSpan={2}>
                         <DigitalizeDataSheet
                           pdfName={pdf.name}
-                          onUpdate={(data) => handleUpdateData(pdf.name, data)}
+                          uid={uid}
+                          onUpdate={handleUpdateData}
                         />
                       </td>
                     </tr>
@@ -127,6 +158,5 @@ const AdminPage: React.FC = () => {
     </div>
   );
 };
-
 
 export default AdminPage;

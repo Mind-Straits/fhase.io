@@ -2,14 +2,17 @@
 import { CellData } from "@/app/components/DataTypes/types";
 
 import React, { useState, useEffect } from "react";
+import firebaseFirestore from "@/app/firebase/firebaseFirestoreQueries";
 
 interface DigitalizeDataSheetProps {
   pdfName: string;
-  onUpdate: (data: CellData[][]) => void;
+  uid: string;
+  onUpdate: (uid: string, pdfName: string, data: CellData[][]) => void;
 }
 
 const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
   pdfName,
+  uid,
   onUpdate,
 }) => {
   const headers = [
@@ -127,8 +130,29 @@ const DigitalizeDataSheet: React.FC<DigitalizeDataSheetProps> = ({
     );
   };
 
-  const handleUpdate = () => {
-    onUpdate(data);
+  const handleUpdate = async () => {
+    try {
+      const formattedData: { [key: string]: string } = {
+        pdfName: pdfName,
+      };
+
+      data.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+          formattedData[`x${rowIndex + 1}y${colIndex + 1}`] = cell.value;
+        });
+      });
+
+      await firebaseFirestore.createOrUpdateDocument(
+        `user/${uid}/digitalized_data`,
+        pdfName,
+        formattedData
+      );
+
+      onUpdate(uid, pdfName, data);
+      console.log("Data updated successfully");
+    } catch (error) {
+      console.error("Error updating data:", error);
+    }
   };
 
   return (

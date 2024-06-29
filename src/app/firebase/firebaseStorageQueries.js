@@ -1,3 +1,5 @@
+// Firebase Storage Query
+
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getStorage, ref, listAll } from "firebase/storage";
 

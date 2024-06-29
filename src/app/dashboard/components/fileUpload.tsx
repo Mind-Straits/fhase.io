@@ -36,7 +36,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
       alert("Only PDF files are supported.");
     }
   };
-
   const handleUploadClick = () => {
     if (selectedFiles.length > 0) {
       setIsUploading(true);
@@ -45,10 +44,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
         const fileRef = ref(userFolderRef, file.name);
         return uploadBytesResumable(fileRef, file);
       });
-
+  
       const totalFiles = uploadTasks.length;
       let completedFiles = 0;
-
+  
       uploadTasks.forEach((uploadTask, index) => {
         uploadTask.on(
           "state_changed",
@@ -71,10 +70,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
           () => {
             completedFiles++;
             if (completedFiles === totalFiles) {
-              setIsUploading(false);
-              setSelectedFiles([]);
-              setUploadProgress([]);
-              alert("All files uploaded successfully!");
+              // Check if all progress bars are at 100%
+              const allComplete = uploadProgress.every((progress) => progress === 100);
+              if (allComplete) {
+                setIsUploading(false);
+                setSelectedFiles([]);
+                setUploadProgress([]);
+                alert("All files uploaded successfully!");
+              }
             }
           }
         );
@@ -83,7 +86,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ uid }) => {
       alert("Please select at least one file.");
     }
   };
-
   return (
     <div className="flex flex-col justify-center items-center h-screen">
       <div
