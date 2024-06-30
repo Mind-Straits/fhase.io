@@ -116,6 +116,17 @@ class FirebaseFirestore {
     await batch.commit();
   }
 
+  // Fetch all the documents of digitalized data
+  async getDigitalizedData(uid) {
+    const collectionRef = collection(this.db, `user/${uid}/digitalized_data`);
+    const querySnapshot = await getDocs(collectionRef);
+    const documents = {};
+    querySnapshot.forEach((doc) => {
+      documents[doc.id] = doc.data();
+    });
+    return documents;
+  }
+
 }
 
 const firebaseFirestore = new FirebaseFirestore();
