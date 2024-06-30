@@ -19,6 +19,12 @@ function Dashboard() {
   const [uid, setUid] = useState("");
   const router = useRouter();
 
+  // Hamburger menu access
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   // For admin panel access
   const adminUIDs = [
     "wXCemTTspxZWEmLF0fUvE7C8Nfr2",
@@ -391,9 +397,11 @@ function Dashboard() {
                   </label>
                 </div>
               </div>
+              {/* HamBurger button below*/}
               <button
                 className="relative middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30 grid xl:hidden"
                 type="button"
+                onClick={toggleMenu}
               >
                 <span className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
                   <svg
@@ -401,17 +409,69 @@ function Dashboard() {
                     viewBox="0 0 24 24"
                     fill="currentColor"
                     aria-hidden="true"
-                    stroke-width="3"
+                    strokeWidth="3"
                     className="h-6 w-6 text-blue-gray-500"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M3 6.75A.75.75 0 013.75 6h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 6.75zM3 12a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 12zm0 5.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z"
-                      clip-rule="evenodd"
+                      clipRule="evenodd"
                     ></path>
                   </svg>
                 </span>
               </button>
+              {/* Dropdown Menu */}
+              {isMenuOpen && (
+                <div className="absolute top-16 right-4 bg-white shadow-md rounded-md py-2 z-50">
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => {
+                      handleItemClick("dashboard");
+                      toggleMenu();
+                    }}
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => {
+                      handleItemClick("profile");
+                      toggleMenu();
+                    }}
+                  >
+                    Profile
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => {
+                      handleItemClick("table");
+                      toggleMenu();
+                    }}
+                  >
+                    Table
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => {
+                      handleItemClick("notification");
+                      toggleMenu();
+                    }}
+                  >
+                    Notification
+                  </button>
+                  {isAdmin && (
+                    <button
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => {
+                        handleItemClick("admin");
+                        toggleMenu();
+                      }}
+                    >
+                      Admin
+                    </button>
+                  )}
+                </div>
+              )}
               <a href="#">
                 <button
                   className="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30 hidden items-center gap-1 px-4 xl:flex"
